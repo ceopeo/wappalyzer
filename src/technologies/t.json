@@ -212,6 +212,14 @@
     "url": "\\.taggbox\\.com",
     "website": "https://taggbox.com/"
   },
+  "TagPro": {
+    "cats": [
+      13
+    ],
+    "icon": "TagPro.png",
+    "scriptSrc": "tagpro\\.adpromedia\\.net/",
+    "website": "https://tagpro.adpromedia.net"
+  },
   "Taiga": {
     "cats": [
       13
