@@ -415,6 +415,7 @@
     "icon": "Tapad.svg",
     "dom": "link[href*='pixel.tapad.com'], img[src*='pixel.tapad.com']",
     "saas": true,
+    test
     "pricing": [
       "poa"
     ],
