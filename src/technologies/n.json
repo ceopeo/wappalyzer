@@ -261,6 +261,22 @@
     "scriptSrc": "rua-api\\.ncloud\\.com/",
     "website": "https://analytics.naver.com"
   },
+  "Neat A/B testing": {
+    "cats": [
+      74,
+      100
+    ],
+    "description": "Neat A/B Testing is a Shopify app built by NeatShift.",
+    "icon": "Neat.png",
+    "implies": "Shopify",
+    "pricing": [
+      "mid",
+      "recurring"
+    ],
+    "saas": true,
+    "scriptSrc": "cdn\\.neatab\\.com/",
+    "website": "https://neatab.com"
+  },
   "Neos CMS": {
     "cats": [
       1
