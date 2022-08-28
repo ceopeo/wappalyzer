@@ -1372,7 +1372,8 @@
     "icon": "Google Analytics.svg",
     "js": {
       "GoogleAnalyticsObject": "",
-      "gaGlobal": ""
+      "gaGlobal": "",
+      "gtag": ""
     },
     "scriptSrc": [
       "google-analytics\\.com/(?:ga|urchin|analytics)\\.js",
