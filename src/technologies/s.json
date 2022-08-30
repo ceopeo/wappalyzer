@@ -3143,7 +3143,7 @@
       },
       "link[href*='css/normalize.css']": {
         "attributes": {
-          "href": "^css/normalize\\.css$\\;confidence:49"
+          "href": "^css/normalize(?:\\.min)?\\.css$\\;confidence:49"
         }
       }
     },
