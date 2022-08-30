@@ -3129,6 +3129,27 @@
     "scriptSrc": "plugin\\.skedify\\.io",
     "website": "https://calendly.com/"
   },
+  "Skeleton": {
+    "cats": [
+      66
+    ],
+    "description": "Skeleton is a simple, responsive boilerplate to kickstart any responsive project.",
+    "icon": "Skeleton.svg",
+    "dom": {
+      "link[href*='css/skeleton.css']": {
+        "attributes": {
+          "href": "^css/skeleton\\.css$\\;confidence:49"
+        }
+      },
+      "link[href*='css/normalize.css']": {
+        "attributes": {
+          "href": "^css/normalize\\.css$\\;confidence:49"
+        }
+      }
+    },
+    "oss": true,
+    "website": "http://getskeleton.com"
+  },
   "Skimlinks": {
     "cats": [
       71
