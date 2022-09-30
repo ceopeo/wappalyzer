@@ -1320,6 +1320,10 @@
     ],
     "description": "Selldone is an all-in-one, ready-to-use ecommerce platform.",
     "icon": "Selldone.svg",
+    "implies": [
+      "PHP",
+      "Vue.js"
+    ],
     "meta": {
       "selldone-iframe": "",
       "selldone-capi": "",
