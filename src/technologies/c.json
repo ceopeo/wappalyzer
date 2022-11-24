@@ -882,6 +882,23 @@
     "icon": "CentOS.png",
     "website": "http://centos.org"
   },
+  "Centra": {
+    "cats": [
+      6
+    ],
+    "description": "Centra is the headless ecommerce platform.",
+    "dom":"img[src*='.centracdn.net/']",
+    "headers": {
+      "Content-Security-Policy": "\\.centra(?:cdn)?\\.(?:com|net)"
+    },
+    "icon": "Centra.svg",
+    "js": {
+      "CENTRA_IMAGE_SIZES": ""
+    },
+    "scripts": "centraCheckoutScript",
+    "excludes": "Magento",
+    "website": "https://centra.com"
+  },
   "Centminmod": {
     "cats": [
       22
