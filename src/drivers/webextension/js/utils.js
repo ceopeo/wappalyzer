@@ -2,6 +2,12 @@
 /* eslint-env browser */
 /* globals chrome */
 
+// Manifest v2 polyfill
+if (chrome.runtime.getManifest().manifest_version === 2) {
+  chrome.action = chrome.browserAction
+}
+
+// eslint-disable-next-line no-unused-vars
 const Utils = {
   agent: chrome.runtime.getURL('/').startsWith('moz-')
     ? 'firefox'
@@ -91,7 +97,7 @@ const Utils = {
         },
         (response) => {
           chrome.runtime.lastError
-            ? reject(new Error(chrome.runtime.lastError.message))
+            ? reject(chrome.runtime.lastError)
             : resolve(response)
         }
       )

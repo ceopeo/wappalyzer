@@ -10,17 +10,21 @@ const Wappalyzer = require('./wappalyzer')
 const { setTechnologies, setCategories, analyze, analyzeManyToMany, resolve } =
   Wappalyzer
 
-const { CHROMIUM_BIN, CHROMIUM_DATA_DIR, CHROMIUM_WEBSOCKET } = process.env
+const { CHROMIUM_BIN, CHROMIUM_DATA_DIR, CHROMIUM_WEBSOCKET, CHROMIUM_ARGS } =
+  process.env
 
-const chromiumArgs = [
-  '--no-sandbox',
-  '--no-zygote',
-  '--disable-gpu',
-  '--ignore-certificate-errors',
-  '--allow-running-insecure-content',
-  '--disable-web-security',
-  `--user-data-dir=${CHROMIUM_DATA_DIR || '/tmp/chromium'}`,
-]
+const chromiumArgs = CHROMIUM_ARGS
+  ? CHROMIUM_ARGS.split(' ')
+  : [
+      '--single-process',
+      '--no-sandbox',
+      '--no-zygote',
+      '--disable-gpu',
+      '--ignore-certificate-errors',
+      '--allow-running-insecure-content',
+      '--disable-web-security',
+      `--user-data-dir=${CHROMIUM_DATA_DIR || '/tmp/chromium'}`,
+    ]
 
 const extensions = /^([^.]+$|\.(asp|aspx|cgi|htm|html|jsp|php)$)/
 
@@ -127,7 +131,20 @@ function getDom(page, technologies = Wappalyzer.technologies) {
 
           dom[selector].forEach(({ exists, text, properties, attributes }) => {
             nodes.forEach((node) => {
-              if (exists) {
+              if (
+                technologies.filter(({ name: _name }) => _name === name)
+                  .length >= 50
+              ) {
+                return
+              }
+
+              if (
+                exists &&
+                technologies.findIndex(
+                  ({ name: _name, selector: _selector, exists }) =>
+                    name === _name && selector === _selector && exists === ''
+                ) === -1
+              ) {
                 technologies.push({
                   name,
                   selector,
@@ -136,9 +153,18 @@ function getDom(page, technologies = Wappalyzer.technologies) {
               }
 
               if (text) {
-                const value = node.textContent.trim()
+                // eslint-disable-next-line unicorn/prefer-text-content
+                const value = (
+                  node.textContent ? node.textContent.trim() : ''
+                ).slice(0, 1000000)
 
-                if (value) {
+                if (
+                  value &&
+                  technologies.findIndex(
+                    ({ name: _name, selector: _selector, text }) =>
+                      name === _name && selector === _selector && text === value
+                  ) === -1
+                ) {
                   technologies.push({
                     name,
                     selector,
@@ -149,7 +175,21 @@ function getDom(page, technologies = Wappalyzer.technologies) {
 
               if (properties) {
                 Object.keys(properties).forEach((property) => {
-                  if (Object.prototype.hasOwnProperty.call(node, property)) {
+                  if (
+                    Object.prototype.hasOwnProperty.call(node, property) &&
+                    technologies.findIndex(
+                      ({
+                        name: _name,
+                        selector: _selector,
+                        property: _property,
+                        value,
+                      }) =>
+                        name === _name &&
+                        selector === _selector &&
+                        property === _property &&
+                        value === toScalar(value)
+                    ) === -1
+                  ) {
                     const value = node[property]
 
                     if (typeof value !== 'undefined') {
@@ -166,7 +206,21 @@ function getDom(page, technologies = Wappalyzer.technologies) {
 
               if (attributes) {
                 Object.keys(attributes).forEach((attribute) => {
-                  if (node.hasAttribute(attribute)) {
+                  if (
+                    node.hasAttribute(attribute) &&
+                    technologies.findIndex(
+                      ({
+                        name: _name,
+                        selector: _selector,
+                        attribute: _atrribute,
+                        value,
+                      }) =>
+                        name === _name &&
+                        selector === _selector &&
+                        attribute === _atrribute &&
+                        value === toScalar(value)
+                    ) === -1
+                  ) {
                     const value = node.getAttribute(attribute)
 
                     technologies.push({
@@ -689,6 +743,15 @@ class Site {
           }),
           {}
         )
+
+        // Change Google Analytics 4 cookie from _ga_XXXXXXXXXX to _ga_*
+        Object.keys(cookies).forEach((name) => {
+          if (/_ga_[A-Z0-9]+/.test(name)) {
+            cookies['_ga_*'] = cookies[name]
+
+            delete cookies[name]
+          }
+        })
       } catch (error) {
         error.message += ` (${url})`
 
@@ -1056,15 +1119,18 @@ class Site {
         ({
           slug,
           name,
+          description,
           confidence,
           version,
           icon,
           website,
           cpe,
           categories,
+          rootPath,
         }) => ({
           slug,
           name,
+          description,
           confidence,
           version: version || null,
           icon,
@@ -1075,6 +1141,7 @@ class Site {
             slug,
             name,
           })),
+          rootPath,
         })
       ),
       patterns,
@@ -1088,7 +1155,6 @@ class Site {
   async probe(url) {
     const files = {
       robots: '/robots.txt',
-      magento: '/magento_version',
     }
 
     // DNS
@@ -1190,13 +1256,31 @@ class Site {
     this.detections = this.detections
       .concat(detections)
       .filter(
-        ({ technology: { name }, pattern: { regex } }, index, detections) =>
+        (
+          { technology: { name }, pattern: { regex }, version },
+          index,
+          detections
+        ) =>
           detections.findIndex(
-            ({ technology: { name: _name }, pattern: { regex: _regex } }) =>
+            ({
+              technology: { name: _name },
+              pattern: { regex: _regex },
+              version: _version,
+            }) =>
               name === _name &&
+              version === _version &&
               (!regex || regex.toString() === _regex.toString())
           ) === index
       )
+
+    // Track if technology was identified on website's root path
+    detections.forEach(({ technology: { name } }) => {
+      const detection = this.detections.find(
+        ({ technology: { name: _name } }) => name === _name
+      )
+
+      detection.rootPath = detection.rootPath || url.pathname === '/'
+    })
 
     if (this.cache[url.href]) {
       const resolved = resolve(this.detections)
