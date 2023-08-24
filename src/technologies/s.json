@@ -6435,6 +6435,7 @@
       "X-Powered-By": "^Strapi"
     },
     "icon": "Strapi.svg",
+    "scripts": "(?://|-)strapi-",
     "oss": true,
     "website": "https://strapi.io"
   },
